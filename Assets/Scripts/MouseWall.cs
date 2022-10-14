@@ -9,6 +9,6 @@ public class MouseWall : MonoBehaviour
 
     public void OnDrawGizmosSelected()
     {
-        Gizmos.DrawRay(transform.position, new Vector3(Mathf.Cos(exitDirection), 0, Mathf.Sin(exitDirection));
+        Gizmos.DrawRay(transform.position, new Vector3(Mathf.Cos(exitDirection), 0, Mathf.Sin(exitDirection)));
     }
 }

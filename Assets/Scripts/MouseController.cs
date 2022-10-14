@@ -50,13 +50,13 @@ public class MouseController : MonoBehaviour
     {
         if(other.CompareTag(EDGE_WALL_TAG))
         {
-            currentWall = GetComponent<MouseWall>();
+            currentWall = other.GetComponent<MouseWall>();
         }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag(EDGE_WALL_TAG))
+        if (other.CompareTag(EDGE_WALL_TAG) && other.GetComponent<MouseWall>() == currentWall)
         {
             currentWall = null;
         }
