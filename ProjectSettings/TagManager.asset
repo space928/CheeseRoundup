@@ -6,6 +6,7 @@ TagManager:
   tags:
   - EdgeWall
   - EdgeWallGeo
+  - Mouse
   layers:
   - Default
   - TransparentFX

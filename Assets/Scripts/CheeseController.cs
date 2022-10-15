@@ -29,6 +29,10 @@ public class CheeseController : MonoBehaviour
             forward = Vector3.Reflect(forward, collision.contacts[0].normal);
 
         }
+        if(collision.gameObject.CompareTag("Mouse"))
+        {
+            
+        }
     }
 
     void Update()
