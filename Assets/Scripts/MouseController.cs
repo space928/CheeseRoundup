@@ -31,12 +31,11 @@ public class MouseController : MonoBehaviour
     void Update()
     {
         // Find what we are pointing at
+        Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit);
+        Vector3 target = new Vector3(hit.point.x, constrainY ? initialY : hit.point.y, hit.point.z);
         if (lastTurn >= turnTime)
         {
             lastTurn = 0;
-            Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit);
-
-            Vector3 target = new Vector3(hit.point.x, constrainY ? initialY : hit.point.y, hit.point.z);
             Vector3 vec = target - transform.position;
             float nextAngle = Mathf.Round(Mathf.Atan2(vec.z, vec.x) / 2 / Mathf.PI * angleSnaps) / angleSnaps * Mathf.PI * 2;
 
@@ -62,8 +61,11 @@ public class MouseController : MonoBehaviour
 
         // Move towards it
         Vector3 forward = new Vector3(Mathf.Cos(currentAngle), 0, Mathf.Sin(currentAngle));
-        transform.position += moveSpeed * Time.deltaTime * forward;
+
+        //transform.position =+ forward
+        transform.position += moveSpeed * Mathf.Min(1,Vector3.Distance(transform.position, target))*5 * Time.deltaTime * forward;
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+
 
         lastTurn += Time.deltaTime;
     }
