@@ -4,40 +4,44 @@ using UnityEngine;
 
 public class CheeseController : MonoBehaviour
 {
-    public float moveSpeed = 0.01f;
-    public bool constrainY = true;
-    public float angleSnaps = 8;
-
+    public float baseMoveSpeed = 0.01f;
+    public float moveSpeed;
     private float initialY;
-    private float randAngle;
+    private float randAngle1;
+    private float randAngle2;
     Vector3 forward;
 
     // Start is called before the first frame update
     void Start()
     {
         initialY = transform.position.y;
-        randAngle = Mathf.Round(Mathf.Atan2(Random.value, Random.value) / 2 / Mathf.PI * angleSnaps) / angleSnaps * Mathf.PI * 2;
-        forward = new Vector3(Mathf.Cos(randAngle), 0, Mathf.Sin(randAngle));
-
+        randAngle1 = Mathf.Round(Mathf.Atan2(Random.value, Random.value));
+        randAngle2 = Mathf.Round(Mathf.Atan2(Random.value, Random.value));
+        forward = new Vector3(Mathf.Cos(randAngle1), 0, Mathf.Sin(randAngle2));
     }
 
     // Update is called once per frame
     void OnCollisionEnter(Collision collision)
     {   
+
         if (collision.gameObject.CompareTag("EdgeWallGeo"))
         {
             forward = Vector3.Reflect(forward, collision.contacts[0].normal);
-
         }
+
+        //This should trigger on hitting mouse and trail, might fix itself idk
         if(collision.gameObject.CompareTag("Mouse"))
         {
-            
+            GameManager.EndGame();
         }
     }
 
     void Update()
     {   
+        moveSpeed = baseMoveSpeed * (1 + ( level % 5 ) * 0.3);
         transform.position += moveSpeed * Time.deltaTime * forward;
+
+        //Makes it look at direction
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
 

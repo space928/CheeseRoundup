@@ -59,6 +59,7 @@ public class MouseController : MonoBehaviour
 
             if(nextAngle != currentAngle)
             {
+                //Call Collision detector
                 mousePoints.Add(transform.position);
             }
 
@@ -66,7 +67,6 @@ public class MouseController : MonoBehaviour
 
             currentAngle = nextAngle;
         }
-
 
         // Move towards it
         Vector3 forward = new Vector3(Mathf.Cos(currentAngle), 0, Mathf.Sin(currentAngle));
@@ -81,11 +81,14 @@ public class MouseController : MonoBehaviour
         if(other.CompareTag(EDGE_WALL_TAG))
         {
             currentWall = other.GetComponent<MouseWall>();
+            //Debug.Log(mousePoints);
             wallConstructor.ConstructWall(mousePoints, lastWall, currentWall);
             mousePoints.Clear();
             onHitWall.Invoke();
         }
     }
+
+
 
     void OnTriggerExit(Collider other)
     {
@@ -96,10 +99,38 @@ public class MouseController : MonoBehaviour
             mousePoints.Add(transform.position);
         }
     }
-
-    void OnDrawGizmos()
-    {
-        foreach (var point in mousePoints)
-            Gizmos.DrawRay(point, Vector3.up);
+    private static float DoThing(Vector3 p, Vector3 q, Vector3 r, Vector3 s){
+        Vector3 m = q - p;
+        return (m.x * s.z - m.z * s.x) / (r.x * s.z - r.z * s.x);
     }
+
+    //Probably dead code
+    bool MouseCollision(Vector3 Point1, Vector3 Point2)
+    {
+        //MouseCollision is called every frame.
+        // For mouse collision with its own tail, call this with the current mouse position and the last item of the mousePoints array
+        // For mouse collision with the cheese, call this with the cheese's position in the previous frame and this frame.
+
+        Vector3 q = Point1;
+        Vector3 s = Point2 - q;
+
+        Vector3 p = this.mousePoints[0];
+        for(int i = 1, Count = this.mousePoints.Count - 1; i < Count; ++i){
+            Vector3 CurrentMousePoint = this.mousePoints[i];
+            Vector3 r = CurrentMousePoint - p;
+
+            // Maybe just add an optimisation of r cross s and if equal 0 then next
+
+
+            double t = DoThing(p, q, r, s);
+            if(t > 0d && t < 1d) return true;
+            
+            double u = DoThing(q, p, s, r);
+            if(u > 0d && u < 1d) return true;
+
+            p = CurrentMousePoint;
+        }
+        return false;
+    }
+
 }

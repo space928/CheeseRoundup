@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]private GameObject cheesePrefab;
     [SerializeField]private Bounds cheeseArea;
-    [SerializeField]private float cheesePerLevel;
+    [SerializeField]private float cheesePerLevel = 0.2; //1 cat every 5 levels
     [SerializeField]private UnityEvent onGameStart;
     [SerializeField]private UnityEvent onGameOver;
 
@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
     {
         instance = this;
     }
-
 
     // Update is called once per frame
     void Update()
@@ -35,6 +34,7 @@ public class GameManager : MonoBehaviour
         ReadyToPlay, Playing, Gameover
     }
 
+    //Spawn Cat**
     public void SpawnCheese()
     {
         for(int i = 0; i < Mathf.Ceil(level*cheesePerLevel); i++)
@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviour
         }
     }
     
+    //Kill Cat
     public void RemoveCheese()
     {
         foreach(var cheese in cheeseList)
@@ -55,6 +56,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //Create Level System
+    public void Level()
+    {
+
+    }
 
     public void StartGame()
     {
@@ -62,11 +68,12 @@ public class GameManager : MonoBehaviour
         onGameStart.Invoke();
     }
     
-
     void EndGame()
     {
         RemoveCheese();
         onGameOver.Invoke();
+
+        //Spawn some red box with flavour text idk 
     }
 }
 
