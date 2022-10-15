@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]private float cheesePerLevel;
     [SerializeField]private UnityEvent onGameStart;
 
+    private List<GameObject> cheeseList = new List<GameObject>();
+
 
 
     void Awake()
@@ -38,15 +40,24 @@ public class GameManager : MonoBehaviour
     {
         for(int i = 0; i < Mathf.Ceil(level*cheesePerLevel); i++)
         {
+
             Vector3 pos = new Vector3(Random.value*cheeseArea.extents.x+cheeseArea.center.x, 
             Random.value*cheeseArea.extents.y+cheeseArea.center.y, 
             Random.value*cheeseArea.extents.z+cheeseArea.center.z);
 
-            Instantiate(cheesePrefab, pos, Quaternion.identity);
+            cheeseList.Add(Instantiate(cheesePrefab, pos, Quaternion.identity));
+
             
         }
     }
     
+    public void RemoveCheese()
+    {
+        foreach(var cheese in cheeseList)
+        {
+            Destroy(cheese);
+        }
+    }
 
 
     public void StartGame()
@@ -59,7 +70,8 @@ public class GameManager : MonoBehaviour
 
     void EndGame()
     {
-
+        RemoveCheese();
+        
     }
 }
 
