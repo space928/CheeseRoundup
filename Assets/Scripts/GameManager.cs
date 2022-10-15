@@ -12,9 +12,10 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]private GameObject cheesePrefab;
     [SerializeField]private Bounds cheeseArea;
-    [SerializeField]private float cheesePerLevel = 0.2; //1 cat every 5 levels
+    [SerializeField]private float cheesePerLevel = 0.2f; //1 cat every 5 levels
     [SerializeField]private UnityEvent onGameStart;
     [SerializeField]private UnityEvent onGameOver;
+    
 
     private List<GameObject> cheeseList = new List<GameObject>();
 
@@ -68,7 +69,7 @@ public class GameManager : MonoBehaviour
         onGameStart.Invoke();
     }
     
-    void EndGame()
+    public void EndGame()
     {
         RemoveCheese();
         onGameOver.Invoke();

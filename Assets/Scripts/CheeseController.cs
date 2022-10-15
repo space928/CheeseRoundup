@@ -9,6 +9,7 @@ public class CheeseController : MonoBehaviour
     private float initialY;
     private float randAngle1;
     private float randAngle2;
+    public GameManager manager;
     Vector3 forward;
 
     // Start is called before the first frame update
@@ -18,11 +19,13 @@ public class CheeseController : MonoBehaviour
         randAngle1 = Mathf.Round(Mathf.Atan2(Random.value, Random.value));
         randAngle2 = Mathf.Round(Mathf.Atan2(Random.value, Random.value));
         forward = new Vector3(Mathf.Cos(randAngle1), 0, Mathf.Sin(randAngle2));
+        moveSpeed = baseMoveSpeed * (1 + ( manager.level % 5 ) * 0.3f);
+        manager = GameManager.instance;
     }
 
     // Update is called once per frame
     void OnCollisionEnter(Collision collision)
-    {   
+    {
 
         if (collision.gameObject.CompareTag("EdgeWallGeo"))
         {
@@ -32,15 +35,15 @@ public class CheeseController : MonoBehaviour
         //This should trigger on hitting mouse and trail, might fix itself idk
         if(collision.gameObject.CompareTag("Mouse"))
         {
-            GameManager.EndGame();
+            manager.EndGame();
         }
     }
 
     void Update()
     {   
-        moveSpeed = baseMoveSpeed * (1 + ( level % 5 ) * 0.3);
-        transform.position += moveSpeed * Time.deltaTime * forward;
 
+        Debug.Log(moveSpeed);
+        transform.position += moveSpeed * Time.deltaTime * forward;
         //Makes it look at direction
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
