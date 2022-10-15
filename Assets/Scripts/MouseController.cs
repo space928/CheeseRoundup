@@ -15,6 +15,7 @@ public class MouseController : MonoBehaviour
     private float initialY;
     private float lastTurn = 0;
     private float currentAngle = 0;
+    private MouseWall lastWall;
     private MouseWall currentWall;
     private List<Vector3> mousePoints = new List<Vector3> (32);
 
@@ -43,11 +44,11 @@ public class MouseController : MonoBehaviour
             {
                 // Special movement rules on walls
                 // Get the nearest angle perpendicular to the current wall
-                float wallAngle = Mathf.Round((Mathf.Atan2(vec.z, vec.x) + currentWall.exitDirection) / Mathf.PI * 2) / angleSnaps * Mathf.PI * 2 - currentWall.exitDirection;
-                if (Mathf.Abs(currentWall.exitDirection - wallAngle) < MathF.PI / 2 + 0.1f)
+                float wallAngle = Mathf.Round((Mathf.Atan2(vec.z, vec.x) + currentWall.ExitDirection) / Mathf.PI * 2) / 2 * Mathf.PI - currentWall.ExitDirection;
+                if (Mathf.Abs(currentWall.ExitDirection - wallAngle) < MathF.PI / 2 + 0.1f)
                     nextAngle = wallAngle;
                 else
-                    nextAngle = currentAngle;
+                    nextAngle = Mathf.Round((Mathf.Atan2(vec.z, vec.x) + (currentWall.ExitDirection + Mathf.PI/2)) / Mathf.PI) * Mathf.PI - currentWall.ExitDirection;
             }
 
             if(nextAngle != currentAngle)
@@ -72,6 +73,7 @@ public class MouseController : MonoBehaviour
         if(other.CompareTag(EDGE_WALL_TAG))
         {
             currentWall = other.GetComponent<MouseWall>();
+            wallConstructor.ConstructWall(mousePoints, lastWall, currentWall);
             mousePoints.Clear();
         }
     }
@@ -80,6 +82,7 @@ public class MouseController : MonoBehaviour
     {
         if (other.CompareTag(EDGE_WALL_TAG) && other.GetComponent<MouseWall>() == currentWall)
         {
+            lastWall = currentWall;
             currentWall = null;
             mousePoints.Add(transform.position);
         }
