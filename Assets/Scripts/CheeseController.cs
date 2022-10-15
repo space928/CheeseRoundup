@@ -24,11 +24,14 @@ public class CheeseController : MonoBehaviour
     // Update is called once per frame
     void OnCollisionEnter(Collision collision)
     {   
-        Debug.Log(collision.gameObject.name);
         if (collision.gameObject.CompareTag("EdgeWallGeo"))
         {
             forward = Vector3.Reflect(forward, collision.contacts[0].normal);
 
+        }
+        if(collision.gameObject.CompareTag("Mouse"))
+        {
+            
         }
     }
 
