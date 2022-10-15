@@ -10,25 +10,29 @@ using UnityEngine;
 public class WallConstructor : MonoBehaviour
 {
     [SerializeField] private float extendEdgesDistance = 50f;
+    [SerializeField] private GameObject wallPrefab;
 
     private MeshRenderer meshRenderer;
     private MeshFilter meshFilter;
     private Mesh mesh;
+    private List<GameObject> walls = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()
     {
         meshRenderer = GetComponent<MeshRenderer>();
         meshFilter = GetComponent<MeshFilter>();
-        mesh = new Mesh();
-        meshFilter.mesh = mesh;
+        //mesh = new Mesh();
+        //meshFilter.mesh = mesh;
 
-        Triangulate(new Vector3[] { 
+        /*Triangulate(new Vector3[] { 
             new Vector3(0,0,0), 
             new Vector3(0,0,1), 
             new Vector3(1,0,0), 
             new Vector3(1,0,1), 
-        });
+            new Vector3(2,0,0), 
+            new Vector3(2,0,1), 
+        });*/
     }
 
     // Update is called once per frame
@@ -43,8 +47,8 @@ public class WallConstructor : MonoBehaviour
         if (points.Count < 2 || !startWall || !endWall)
             return;
 
-        Vector3 firstPoint = points[0] + new Vector3(Mathf.Cos(startWall.exitDirection), 0, Mathf.Sin(startWall.exitDirection)) * extendEdgesDistance;
-        Vector3 lastPoint = points[points.Count - 1] + new Vector3(Mathf.Cos(endWall.exitDirection), 0, Mathf.Sin(endWall.exitDirection)) * extendEdgesDistance;
+        Vector3 firstPoint = points[0] + new Vector3(Mathf.Cos(startWall.ExitDirection), 0, Mathf.Sin(startWall.ExitDirection)) * extendEdgesDistance;
+        Vector3 lastPoint = points[points.Count - 1] + new Vector3(Mathf.Cos(endWall.ExitDirection), 0, Mathf.Sin(endWall.ExitDirection)) * extendEdgesDistance;
 
         // Triangulate points
         var pointsArr = new Vector3[points.Count + 2];
@@ -52,6 +56,7 @@ public class WallConstructor : MonoBehaviour
         pointsArr[points.Count + 1] = lastPoint;
         Array.Copy(points.ToArray(), 0, pointsArr, 1, points.Count);
 
+/*
         // Generate mesh
         // Merge with old mesh
         var oldVerts = mesh.vertices;
@@ -80,6 +85,22 @@ public class WallConstructor : MonoBehaviour
 
         mesh.RecalculateNormals();
         mesh.UploadMeshData(false);
+*/
+        // Create colliders
+        for(int i = 1; i < points.Count-1; i++)
+        {
+            // Find centre
+            Vector3 pos = (points[i] + points[i + 1]) / 2;
+            Vector3 diff = (points[i + 1] - points[i]);
+            float width = diff.magnitude;
+            float yRot = Mathf.Atan2(diff.z, diff.x);
+            Quaternion rot = Quaternion.AngleAxis(yRot * 180 / Mathf.PI, Vector3.up);
+
+            // Instantiate it
+            var obj = Instantiate(wallPrefab, pos, rot);
+            obj.transform.localScale = new Vector3(width, 1, 1);
+            walls.Add(obj);
+        }
     }
 
     /// <summary>
@@ -169,7 +190,6 @@ public class WallConstructor : MonoBehaviour
                 indices[index+2] = next + indexOffset;
                 index+=3;
                 points.Remove(node);
-                Quaternion.
             }
             node = node.Next == null ? points.First : node.Next;
         }
@@ -190,9 +210,10 @@ public class WallConstructor : MonoBehaviour
         var a = next - curr;
         var dot = a.x * b.x + a.z * b.z;
         var det = a.x * b.z - a.z * b.x;
-        var angle = Mathf.Atan2(dot, det);
+        var angle = Mathf.Atan2(det, dot);
         angle = angle < 0 ? angle + 2 * Mathf.PI : angle;
         return angle <= Mathf.PI;
+        //return ((prev.x * (next.z - curr.z)) + (curr.x * (prev.z - next.z)) + (next.x * (curr.z - prev.z))) < 0;
     }
 
     /// <summary>

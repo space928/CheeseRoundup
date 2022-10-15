@@ -44,11 +44,11 @@ public class MouseController : MonoBehaviour
             {
                 // Special movement rules on walls
                 // Get the nearest angle perpendicular to the current wall
-                float wallAngle = Mathf.Round((Mathf.Atan2(vec.z, vec.x) + currentWall.exitDirection) / Mathf.PI * 2) / 2 * Mathf.PI - currentWall.exitDirection;
-                if (Mathf.Abs(currentWall.exitDirection - wallAngle) < MathF.PI / 2 + 0.1f)
+                float wallAngle = Mathf.Round((Mathf.Atan2(vec.z, vec.x) + currentWall.ExitDirection) / Mathf.PI * 2) / 2 * Mathf.PI - currentWall.ExitDirection;
+                if (Mathf.Abs(currentWall.ExitDirection - wallAngle) < MathF.PI / 2 + 0.1f)
                     nextAngle = wallAngle;
                 else
-                    nextAngle = Mathf.Round((Mathf.Atan2(vec.z, vec.x) + (currentWall.exitDirection + Mathf.PI/2)) / Mathf.PI) * Mathf.PI - currentWall.exitDirection;
+                    nextAngle = Mathf.Round((Mathf.Atan2(vec.z, vec.x) + (currentWall.ExitDirection + Mathf.PI/2)) / Mathf.PI) * Mathf.PI - currentWall.ExitDirection;
             }
 
             if(nextAngle != currentAngle)
