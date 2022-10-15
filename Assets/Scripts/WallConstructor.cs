@@ -22,17 +22,17 @@ public class WallConstructor : MonoBehaviour
     {
         meshRenderer = GetComponent<MeshRenderer>();
         meshFilter = GetComponent<MeshFilter>();
-        //mesh = new Mesh();
-        //meshFilter.mesh = mesh;
+        mesh = new Mesh();
+        meshFilter.mesh = mesh;
 
-        /*Triangulate(new Vector3[] { 
-            new Vector3(0,0,0), 
-            new Vector3(0,0,1), 
-            new Vector3(1,0,0), 
-            new Vector3(1,0,1), 
-            new Vector3(2,0,0), 
-            new Vector3(2,0,1), 
-        });*/
+        Triangulate(new Vector3[] {
+            new Vector3(0,0,1),
+            new Vector3(1,0,0),
+            new Vector3(2,0,1),
+            new Vector3(3,0,0),
+            new Vector3(3,0,3),
+            new Vector3(0,0,3),
+        });
     }
 
     // Update is called once per frame
@@ -56,7 +56,7 @@ public class WallConstructor : MonoBehaviour
         pointsArr[points.Count + 1] = lastPoint;
         Array.Copy(points.ToArray(), 0, pointsArr, 1, points.Count);
 
-/*
+        
         // Generate mesh
         // Merge with old mesh
         var oldVerts = mesh.vertices;
@@ -85,9 +85,9 @@ public class WallConstructor : MonoBehaviour
 
         mesh.RecalculateNormals();
         mesh.UploadMeshData(false);
-*/
+
         // Create colliders
-        for(int i = 1; i < points.Count-1; i++)
+        /*for(int i = 1; i < points.Count-1; i++)
         {
             // Find centre
             Vector3 pos = (points[i] + points[i + 1]) / 2;
@@ -100,7 +100,7 @@ public class WallConstructor : MonoBehaviour
             var obj = Instantiate(wallPrefab, pos, rot);
             obj.transform.localScale = new Vector3(width, 1, 1);
             walls.Add(obj);
-        }
+        }*/
     }
 
     /// <summary>

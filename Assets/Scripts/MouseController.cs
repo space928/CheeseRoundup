@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MouseController : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class MouseController : MonoBehaviour
     [SerializeField] private bool constrainY = true;
     [SerializeField] private float angleSnaps = 8;
     [SerializeField] private float turnTime = 0.3f;
+    [SerializeField] private UnityEvent<float, float> onTurn;
+    [SerializeField] private UnityEvent onHitWall;
 
     private float initialY;
     private float lastTurn = 0;
@@ -18,6 +21,9 @@ public class MouseController : MonoBehaviour
     private MouseWall lastWall;
     private MouseWall currentWall;
     private List<Vector3> mousePoints = new List<Vector3> (32);
+    private bool canMove;
+
+    public bool CanMove { get { return canMove; } set { canMove = value; } }
 
     private readonly string EDGE_WALL_TAG = "EdgeWall";
 
@@ -48,13 +54,15 @@ public class MouseController : MonoBehaviour
                 if (Mathf.Abs(currentWall.ExitDirection - wallAngle) < MathF.PI / 2 + 0.1f)
                     nextAngle = wallAngle;
                 else
-                    nextAngle = Mathf.Round((Mathf.Atan2(vec.z, vec.x) + (currentWall.ExitDirection + Mathf.PI/2)) / Mathf.PI) * Mathf.PI - currentWall.ExitDirection;
+                    nextAngle = Mathf.Round((Mathf.Atan2(vec.z, vec.x) + (currentWall.ExitDirection)) / Mathf.PI) * Mathf.PI - currentWall.ExitDirection;
             }
 
             if(nextAngle != currentAngle)
             {
                 mousePoints.Add(transform.position);
             }
+
+            onTurn.Invoke(currentAngle, nextAngle);
 
             currentAngle = nextAngle;
         }
@@ -75,6 +83,7 @@ public class MouseController : MonoBehaviour
             currentWall = other.GetComponent<MouseWall>();
             wallConstructor.ConstructWall(mousePoints, lastWall, currentWall);
             mousePoints.Clear();
+            onHitWall.Invoke();
         }
     }
 
@@ -86,5 +95,11 @@ public class MouseController : MonoBehaviour
             currentWall = null;
             mousePoints.Add(transform.position);
         }
+    }
+
+    void OnDrawGizmos()
+    {
+        foreach (var point in mousePoints)
+            Gizmos.DrawRay(point, Vector3.up);
     }
 }
