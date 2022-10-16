@@ -807,7 +807,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0ac6e43a3320d7d4ca4bec4dab883879, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.166
+      value: -0.17
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0ac6e43a3320d7d4ca4bec4dab883879, type: 3}
       propertyPath: m_LocalPosition.z
@@ -9371,7 +9371,7 @@ GameObject:
   - component: {fileID: 1015558140}
   m_Layer: 0
   m_Name: WallsDeco
-  m_TagString: Untagged
+  m_TagString: EdgeWallGeo
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -9515,11 +9515,11 @@ GameObject:
   - component: {fileID: 1127817107}
   m_Layer: 0
   m_Name: Mouse
-  m_TagString: Untagged
+  m_TagString: Mouse
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!96 &1127817103
 TrailRenderer:
   serializedVersion: 2
@@ -9633,7 +9633,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 519420031}
   wallConstructor: {fileID: 828183148}
-  moveSpeed: 1
+  gameManager: {fileID: 1768927354}
+  moveSpeed: 0.7
   constrainY: 1
   angleSnaps: 8
   turnTime: 0.3
@@ -9643,6 +9644,62 @@ MonoBehaviour:
   onHitWall:
     m_PersistentCalls:
       m_Calls: []
+  onSlicedWall:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1908064503}
+        m_TargetAssemblyTypeName: CheeseSlicer, Assembly-CSharp
+        m_MethodName: SliceCheese
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  EdgePoints:
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  EdgePointsCount: 0
+  CurrentEdge: 0
+  CurrentEdgeProgress: 0
+  IsCutting: 0
+  CuttingFrom: {x: 0, y: 0}
+  CuttingTowards: {x: 0, y: 0}
+  CuttingTowardsNextEdge: -1
+  MouseDirection: 1
 --- !u!4 &1127817105
 Transform:
   m_ObjectHideFlags: 0
@@ -9650,7 +9707,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1127817102}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -11449,7 +11506,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1127817104}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MouseController, Assembly-CSharp
         m_MethodName: set_CanMove
         m_Mode: 6
