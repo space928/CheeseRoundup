@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class CheeseController : MonoBehaviour
 {
-    public float moveSpeed = 0.01f;
+    public float moveSpeed;
     public bool constrainY = true;
     public float angleSnaps = 8;
 
     private bool  waitCheck = false;
     private float initialY;
-    private float randAngle;
+    private float randAngle1;
+    private float randAngle2;
+    private GameManager manager;
+    private float baseMoveSpeed = 0.01f;
     Vector3 forward;
 
     // Start is called before the first frame update
