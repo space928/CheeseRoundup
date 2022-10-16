@@ -55,6 +55,18 @@ public class MouseController : MonoBehaviour
         EdgePointsCount = 4;
     }
 
+    float CalculateCurrentArea(){
+        float Area = 0.0f;
+
+        for(int i = 0; i < EdgePointsCount; ++i){
+            Vector2 a = EdgePoints[i];
+            Vector2 b = EdgePoints[(i + 1) % EdgePointsCount];
+            Area += a.x * b.y - a.y * b.x;
+        }
+
+        return Area;
+    }
+
     void CutAwayEdges(){
         IsCutting = false;
 
