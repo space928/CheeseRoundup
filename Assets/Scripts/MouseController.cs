@@ -15,6 +15,7 @@ public class MouseController : MonoBehaviour
     [SerializeField] private float turnTime = 0.3f;
     [SerializeField] private UnityEvent<float, float> onTurn;
     [SerializeField] private UnityEvent onHitWall;
+    [SerializeField] private UnityEvent<float, float> onSlicedWallArea;
     [SerializeField] private UnityEvent<Vector2, Vector2, bool> onSlicedWall;
 
 
@@ -29,6 +30,7 @@ public class MouseController : MonoBehaviour
     public bool CanMove { get { return canMove; } set { canMove = value; } }
 
     private readonly string EDGE_WALL_TAG = "EdgeWall";
+    private readonly float MAX_AREA = 6;
 
 
     public Vector2[] EdgePoints = new Vector2[32];
@@ -99,6 +101,7 @@ public class MouseController : MonoBehaviour
             NewEdgePoints[1] = CuttingTowards;
             Debug.Log("hi");
             onSlicedWall.Invoke(CuttingFrom, CuttingTowards, true);
+            onSlicedWallArea.Invoke(CalculateCurrentArea(), MAX_AREA);
             
             
             for(; i < (CurrentEdge - CuttingTowardsNextEdge + EdgePointsCount + 1) % EdgePointsCount; ++i){
@@ -110,6 +113,7 @@ public class MouseController : MonoBehaviour
             NewEdgePoints[1] = CuttingTowards;
             Debug.Log("hi");
             onSlicedWall.Invoke(CuttingTowards, CuttingFrom, true);
+            onSlicedWallArea.Invoke(CalculateCurrentArea(), MAX_AREA);
             
             Debug.Log(CuttingTowardsNextEdge + ", " + CurrentEdge);
             
@@ -147,6 +151,7 @@ public class MouseController : MonoBehaviour
         
 
         CuttingTowardsNextEdge = -1;
+
     }
 
     Vector2 AdvancePosition(){

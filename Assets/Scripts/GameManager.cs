@@ -13,8 +13,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject cheesePrefab;
     [SerializeField] private Bounds cheeseArea;
     [SerializeField] private float cheesePerLevel = 0.2f; //1 cat every 5 levels
+    [SerializeField] private float cheeseRatioToWin = 0.9f; //1 cat every 5 levels
     [SerializeField] private UnityEvent onGameStart;
-    [SerializeField] private UnityEvent<bool> onGameOver;
+    [SerializeField] private UnityEvent onGameOver;
     [SerializeField] private MouseController MC;
     
 
@@ -35,7 +36,15 @@ public class GameManager : MonoBehaviour
 
     public enum GameState
     {
-        ReadyToPlay, Playing, GameoverWin, GameoverLose 
+        ReadyToPlay, Playing, LevelWin, GameoverLose 
+    }
+
+    public void OnCheeseAreaChanged(float cheeseArea, float maxArea)
+    {
+        if(cheeseArea/maxArea < 1- cheeseRatioToWin)
+        {
+            LevelWin();
+        }
     }
 
     //Spawn Cat**
@@ -63,7 +72,7 @@ public class GameManager : MonoBehaviour
     //Create Level System
     public void Level()
     {
-
+        
     }
 
     public void StartGame()
@@ -72,18 +81,19 @@ public class GameManager : MonoBehaviour
         state = GameState.Playing;
         onGameStart.Invoke();
     }
-    public void GameoverWin()
+    public void LevelWin()
     {
         RemoveCheese();
-        state = GameState.GameoverWin;
-        onGameOver.Invoke(true);
+        state = GameState.LevelWin;
+        
+        onGameOver.Invoke();
     }
 
     public void GameOverLose()
     {
         RemoveCheese();
         state = GameState.GameoverLose;
-        onGameOver.Invoke(false);
+        onGameOver.Invoke();
     }
 
     public void RestartGame()
