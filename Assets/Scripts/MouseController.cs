@@ -25,12 +25,12 @@ public class MouseController : MonoBehaviour
     private MouseWall lastWall;
     private MouseWall currentWall;
     private List<Vector3> mousePoints = new List<Vector3> (32);
-    private bool canMove;
+    private bool canMove = false;
 
     public bool CanMove { get { return canMove; } set { canMove = value; } }
 
     private readonly string EDGE_WALL_TAG = "EdgeWall";
-    private readonly float MAX_AREA = 6;
+    private float maxArea;
 
 
     public Vector2[] EdgePoints = new Vector2[32];
@@ -49,12 +49,19 @@ public class MouseController : MonoBehaviour
     void Start()
     {
         initialY = transform.position.y;
+        ResetEdges();
+    }
+
+    public void ResetEdges()
+    {
         EdgePoints = new Vector2[32];
         EdgePoints[0] = new Vector2(-1.5f, -1f);
         EdgePoints[1] = new Vector2(1.5f, -1f);
         EdgePoints[2] = new Vector2(1.5f, 1f);
         EdgePoints[3] = new Vector2(-1.5f, 1f);
         EdgePointsCount = 4;
+
+        maxArea = CalculateCurrentArea();
     }
 
     float CalculateCurrentArea(){
@@ -101,7 +108,6 @@ public class MouseController : MonoBehaviour
             NewEdgePoints[1] = CuttingTowards;
             Debug.Log("hi");
             onSlicedWall.Invoke(CuttingFrom, CuttingTowards, true);
-            onSlicedWallArea.Invoke(CalculateCurrentArea(), MAX_AREA);
             
             
             for(; i < (CurrentEdge - CuttingTowardsNextEdge + EdgePointsCount + 1) % EdgePointsCount; ++i){
@@ -113,7 +119,6 @@ public class MouseController : MonoBehaviour
             NewEdgePoints[1] = CuttingTowards;
             Debug.Log("hi");
             onSlicedWall.Invoke(CuttingTowards, CuttingFrom, true);
-            onSlicedWallArea.Invoke(CalculateCurrentArea(), MAX_AREA);
             
             Debug.Log(CuttingTowardsNextEdge + ", " + CurrentEdge);
             
@@ -148,7 +153,8 @@ public class MouseController : MonoBehaviour
         EdgePoints = NewEdgePoints;
         EdgePointsCount = i + 2;
 
-        
+        onSlicedWallArea.Invoke(CalculateCurrentArea(), maxArea);
+
 
         CuttingTowardsNextEdge = -1;
 
@@ -234,10 +240,13 @@ public class MouseController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!canMove)
+            return;
+
         Vector2 CurrentPosition = AdvancePosition();
         Vector3 NextPosition = new Vector3(CurrentPosition.x, initialY, CurrentPosition.y);
         Vector3 dir = NextPosition - transform.position;
-        transform.rotation.SetLookRotation(dir);
+        transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
         transform.position = NextPosition;
         if(Input.GetMouseButtonDown(0) && !IsCutting && gameManager.state == GameManager.GameState.Playing){
             Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit);

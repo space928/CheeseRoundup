@@ -16,9 +16,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float cheeseRatioToWin = 0.9f; //1 cat every 5 levels
     [SerializeField] private UnityEvent onGameStart;
     [SerializeField] private UnityEvent onGameOver;
-    [SerializeField] private MouseController MC;
+    [SerializeField] private MouseController mouseController;
     [SerializeField] private Material cheeseIndicatorMaterial;
     [SerializeField] private Material floorMaterial;
+    [SerializeField] private GameObject gameOverLoseScreen;
+    [SerializeField] private GameObject gameOverWinScreen;
     
 
     private List<GameObject> cheeseList = new List<GameObject>();
@@ -28,6 +30,9 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         instance = this;
+        gameOverLoseScreen.SetActive(false);
+        gameOverWinScreen.SetActive(false);
+        mouseController.CanMove = false;
     }
 
     // Update is called once per frame
@@ -47,6 +52,8 @@ public class GameManager : MonoBehaviour
         {
             LevelWin();
         }
+
+        cheeseIndicatorMaterial.SetFloat("_WipeAmount", 1 - cheeseArea / maxArea);
     }
 
     //Spawn Cat**
@@ -79,15 +86,21 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
+        gameOverLoseScreen.SetActive(false);
+        gameOverWinScreen.SetActive(false);
         SpawnCheese();
         state = GameState.Playing;
         onGameStart.Invoke();
+        mouseController.CanMove = true;
     }
     public void LevelWin()
     {
+        mouseController.CanMove = false;
         RemoveCheese();
         state = GameState.LevelWin;
-        
+
+        gameOverWinScreen.SetActive(true);
+
         onGameOver.Invoke();
 
         // Set a new background colour
@@ -96,8 +109,12 @@ public class GameManager : MonoBehaviour
 
     public void GameOverLose()
     {
+        mouseController.CanMove = false;
         RemoveCheese();
         state = GameState.GameoverLose;
+
+        gameOverLoseScreen.SetActive(true);
+
         onGameOver.Invoke();
 
         // Set the background material colour to red
@@ -106,9 +123,12 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
+        mouseController.CanMove = false;
         RemoveCheese();
         state = GameState.ReadyToPlay;
         onGameStart.Invoke();
+        gameOverLoseScreen.SetActive(false);
+        gameOverWinScreen.SetActive(false);
     }
 }
 

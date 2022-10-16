@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class CheeseSlicer : MonoBehaviour
@@ -31,6 +32,22 @@ public class CheeseSlicer : MonoBehaviour
                 to = Vector2.zero;
             } else
                 from = new Vector2(rhit.point.x, rhit.point.z);
+        }
+    }
+
+    public void ResetCheese()
+    {
+        StartCoroutine(TweenResetCheese());
+        //foreach (Transform part in parts)
+        //    part.gameObject.SetActive(true);
+    }
+
+    public IEnumerator TweenResetCheese()
+    {
+        foreach (Transform part in parts)
+        {
+            part.gameObject.SetActive(true);
+            yield return new WaitForEndOfFrame();
         }
     }
 
