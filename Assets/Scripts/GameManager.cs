@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private UnityEvent onGameStart;
     [SerializeField] private UnityEvent onGameOver;
     [SerializeField] private MouseController MC;
+    [SerializeField] private Material cheeseIndicatorMaterial;
+    [SerializeField] private Material floorMaterial;
     
 
     private List<GameObject> cheeseList = new List<GameObject>();
@@ -87,6 +89,9 @@ public class GameManager : MonoBehaviour
         state = GameState.LevelWin;
         
         onGameOver.Invoke();
+
+        // Set a new background colour
+        floorMaterial.color = Color.HSVToRGB(Random.value, 0.62f, 0.69f);
     }
 
     public void GameOverLose()
@@ -94,6 +99,9 @@ public class GameManager : MonoBehaviour
         RemoveCheese();
         state = GameState.GameoverLose;
         onGameOver.Invoke();
+
+        // Set the background material colour to red
+        floorMaterial.color = Color.HSVToRGB(0, 0.72f, 0.5f);
     }
 
     public void RestartGame()
