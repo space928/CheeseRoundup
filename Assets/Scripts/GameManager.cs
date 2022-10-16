@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
 
     private List<GameObject> cheeseList = new List<GameObject>();
 
+    public List<GameObject> CheeseList { get {return cheeseList;} }
+
     void Awake()
     {
         instance = this;
@@ -51,9 +53,9 @@ public class GameManager : MonoBehaviour
     //Kill Cat
     public void RemoveCheese()
     {
-        foreach(var cheese in cheeseList)
-        {
-            Destroy(cheese);
+        for(int i = cheeseList.Count - 1; i >= 0; i--){
+            Destroy(cheeseList[i]);
+            cheeseList.RemoveAt(i);
         }
     }
 

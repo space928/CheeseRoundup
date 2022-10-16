@@ -8,12 +8,15 @@ public class MouseController : MonoBehaviour
 {
     [SerializeField] private Camera mainCamera;
     [SerializeField] private WallConstructor wallConstructor;
+    [SerializeField] private GameManager gameManager;
     [SerializeField] private float moveSpeed = 0.01f;
     [SerializeField] private bool constrainY = true;
     [SerializeField] private float angleSnaps = 8;
     [SerializeField] private float turnTime = 0.3f;
     [SerializeField] private UnityEvent<float, float> onTurn;
     [SerializeField] private UnityEvent onHitWall;
+    [SerializeField] private UnityEvent<Vector2, Vector2, bool> onSlicedWall;
+
 
     private float initialY;
     private float lastTurn = 0;
@@ -54,9 +57,34 @@ public class MouseController : MonoBehaviour
 
     void CutAwayEdges(){
         IsCutting = false;
+
+
+
+        Vector2 dir = CuttingTowards - CuttingFrom;
+
+        List<GameObject> Cats = gameManager.CheeseList;
+        int[] CatSides = new int[2];
+
+        int CatSide = 0;
+        
+        foreach(GameObject Cat in Cats){
+            Vector2 Position = new Vector2(Cat.transform.position.x, Cat.transform.position.z);
+            Vector2 dir2 = Position - CuttingFrom;
+            CatSides[Vector2.SignedAngle(dir, dir2)>0?0:1]++;
+        }
+
+        if(CatSides[0] > 0 && CatSides[1] > 0){
+            Debug.Log("Lose");
+            return;
+        }
+        if(CatSides[1] > 0) CatSide = 1;
+        Debug.Log(CatSide);
+
         Vector2[] NewEdgePoints = new Vector2[32];
         NewEdgePoints[0] = CuttingFrom;
         NewEdgePoints[1] = CuttingTowards;
+        Debug.Log("hi");
+        onSlicedWall.Invoke(CuttingFrom, CuttingTowards, true);
         
         int i = 0;
         for(; i < (CurrentEdge - CuttingTowardsNextEdge + EdgePointsCount + 1) % EdgePointsCount; ++i){
