@@ -230,7 +230,10 @@ public class MouseController : MonoBehaviour
     void Update()
     {
         Vector2 CurrentPosition = AdvancePosition();
-        transform.position = new Vector3(CurrentPosition.x, 0, CurrentPosition.y);
+        Vector3 NextPosition = new Vector3(CurrentPosition.x, initialY, CurrentPosition.y);
+        Vector3 dir = NextPosition - transform.position;
+        transform.rotation.SetLookRotation(dir);
+        transform.position = NextPosition;
         if(Input.GetMouseButtonDown(0) && !IsCutting && gameManager.state == GameManager.GameState.Playing){
             Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit);
 
