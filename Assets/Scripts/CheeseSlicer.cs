@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class CheeseSlicer : MonoBehaviour
@@ -20,7 +21,7 @@ public class CheeseSlicer : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetMouseButtonDown(0))
+        if(false && Input.GetMouseButtonDown(0))
         {
             Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit rhit);
             if (from != Vector2.zero)
@@ -34,8 +35,25 @@ public class CheeseSlicer : MonoBehaviour
         }
     }
 
-    void SliceCheese(Vector2 from, Vector2 to, bool half)
+    public void ResetCheese()
     {
+        StartCoroutine(TweenResetCheese());
+        //foreach (Transform part in parts)
+        //    part.gameObject.SetActive(true);
+    }
+
+    public IEnumerator TweenResetCheese()
+    {
+        foreach (Transform part in parts)
+        {
+            part.gameObject.SetActive(true);
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    public void SliceCheese(Vector2 from, Vector2 to, bool half)
+    {
+        Debug.Log("hiq");
         Vector2 dir = (to - from);
 
         particles.transform.position = new Vector3(from.x, 0, from.y);

@@ -8,12 +8,16 @@ public class MouseController : MonoBehaviour
 {
     [SerializeField] private Camera mainCamera;
     [SerializeField] private WallConstructor wallConstructor;
+    [SerializeField] private GameManager gameManager;
     [SerializeField] private float moveSpeed = 0.01f;
     [SerializeField] private bool constrainY = true;
     [SerializeField] private float angleSnaps = 8;
     [SerializeField] private float turnTime = 0.3f;
     [SerializeField] private UnityEvent<float, float> onTurn;
     [SerializeField] private UnityEvent onHitWall;
+    [SerializeField] private UnityEvent<float, float> onSlicedWallArea;
+    [SerializeField] private UnityEvent<Vector2, Vector2, bool> onSlicedWall;
+
 
     private float initialY;
     private float lastTurn = 0;
@@ -21,11 +25,12 @@ public class MouseController : MonoBehaviour
     private MouseWall lastWall;
     private MouseWall currentWall;
     private List<Vector3> mousePoints = new List<Vector3> (32);
-    private bool canMove;
+    private bool canMove = false;
 
     public bool CanMove { get { return canMove; } set { canMove = value; } }
 
     private readonly string EDGE_WALL_TAG = "EdgeWall";
+    private float maxArea;
 
 
     public Vector2[] EdgePoints = new Vector2[32];
@@ -44,31 +49,115 @@ public class MouseController : MonoBehaviour
     void Start()
     {
         initialY = transform.position.y;
+        ResetEdges();
+    }
+
+    public void ResetEdges()
+    {
         EdgePoints = new Vector2[32];
         EdgePoints[0] = new Vector2(-1.5f, -1f);
         EdgePoints[1] = new Vector2(1.5f, -1f);
         EdgePoints[2] = new Vector2(1.5f, 1f);
         EdgePoints[3] = new Vector2(-1.5f, 1f);
         EdgePointsCount = 4;
+
+        maxArea = CalculateCurrentArea();
+    }
+
+    float CalculateCurrentArea(){
+        float Area = 0.0f;
+
+        for(int i = 0; i < EdgePointsCount; ++i){
+            Vector2 a = EdgePoints[i];
+            Vector2 b = EdgePoints[(i + 1) % EdgePointsCount];
+            Area += a.x * b.y - a.y * b.x;
+        }
+
+        return Area;
     }
 
     void CutAwayEdges(){
         IsCutting = false;
-        Vector2[] NewEdgePoints = new Vector2[32];
-        NewEdgePoints[0] = CuttingFrom;
-        NewEdgePoints[1] = CuttingTowards;
+
+
+
+        Vector2 dir = CuttingTowards - CuttingFrom;
+
+        List<GameObject> Cats = gameManager.CheeseList;
+        int[] CatSides = new int[2];
+
+        int CatSide = 0;
         
-        int i = 0;
-        for(; i < (CurrentEdge - CuttingTowardsNextEdge + EdgePointsCount + 1) % EdgePointsCount; ++i){
-            NewEdgePoints[i + 2] = EdgePoints[(CuttingTowardsNextEdge + i) % EdgePointsCount];
+        foreach(GameObject Cat in Cats){
+            Vector2 Position = new Vector2(Cat.transform.position.x, Cat.transform.position.z);
+            Vector2 dir2 = Position - CuttingFrom;
+            CatSides[Vector2.SignedAngle(dir, dir2)>0?0:1]++;
         }
+
+        if(CatSides[0] > 0 && CatSides[1] > 0){
+            Debug.Log("Lose");
+            return;
+        }
+        if(CatSides[1] > 0) CatSide = 1;
+        Debug.Log(CatSide);
+
+        Vector2[] NewEdgePoints = new Vector2[32];
+        int i = 0;
+        if(true){
+            NewEdgePoints[0] = CuttingFrom;
+            NewEdgePoints[1] = CuttingTowards;
+            Debug.Log("hi");
+            onSlicedWall.Invoke(CuttingFrom, CuttingTowards, true);
+            
+            
+            for(; i < (CurrentEdge - CuttingTowardsNextEdge + EdgePointsCount + 1) % EdgePointsCount; ++i){
+                NewEdgePoints[i + 2] = EdgePoints[(CuttingTowardsNextEdge + i) % EdgePointsCount];
+            }
+            CurrentEdge = 1;
+        } else{
+            NewEdgePoints[0] = CuttingFrom;
+            NewEdgePoints[1] = CuttingTowards;
+            Debug.Log("hi");
+            onSlicedWall.Invoke(CuttingTowards, CuttingFrom, true);
+            
+            Debug.Log(CuttingTowardsNextEdge + ", " + CurrentEdge);
+            
+            /*for(int j = (CuttingTowardsNextEdge - CurrentEdge + EdgePointsCount - 1); j >= 0; --j, ++i){
+                NewEdgePoints[i + 2] = EdgePoints[(CuttingTowardsNextEdge - j + EdgePointsCount) % EdgePointsCount];
+            }*/
+            //NewEdgePoints[2] = EdgePoints[(CuttingTowardsNextEdge - 1) % EdgePointsCount];
+
+            //EdgePointsCount = 3;//i + 2;
+
+            Debug.Log("From: " + CuttingFrom  + " To: " + CuttingTowards + " ctne: " + CuttingTowardsNextEdge + " ce: " + CurrentEdge);           
+            Debug.Log("Current points: " + EdgePointsCount);
+            for(int k = 0; k < EdgePointsCount; k++)
+                Debug.Log("   Current p: " + EdgePoints[k]); 
+
+            int j = (CuttingTowardsNextEdge-1) % EdgePointsCount;
+            while(j != CurrentEdge % EdgePointsCount)
+            {
+                //Debug.Log(i + ", " + j + ", " + EdgePointsCount);
+                Debug.Log(EdgePoints[j] + ", " + CuttingFrom);
+                NewEdgePoints[i++ + 2] = EdgePoints[j];
+                j = (j-1+EdgePointsCount) % EdgePointsCount;
+            }
+
+            for(int k = 0; k < EdgePointsCount; k++)
+                Debug.Log("   New p: " + NewEdgePoints[k]);
+
+            CurrentEdge = 1;
+        }
+
 
         EdgePoints = NewEdgePoints;
         EdgePointsCount = i + 2;
 
-        CurrentEdge = 1;
+        onSlicedWallArea.Invoke(CalculateCurrentArea(), maxArea);
+
 
         CuttingTowardsNextEdge = -1;
+
     }
 
     Vector2 AdvancePosition(){
@@ -77,8 +166,10 @@ public class MouseController : MonoBehaviour
         if(!IsCutting){
             Vector2 CurrentPoint = EdgePoints[CurrentEdge % EdgePointsCount];
             Vector2 NextPoint = EdgePoints[(CurrentEdge + 1) % EdgePointsCount];
+            //Vector2 NextPoint = EdgePoints[(CurrentEdge - 1 + EdgePointsCount-1) % EdgePointsCount];
             float Distance = Vector2.Distance(NextPoint, CurrentPoint);
             Vector3 Position = Vector3.Lerp(CurrentPoint, NextPoint, CurrentEdgeProgress / Distance);
+            //Vector3 Position = Vector3.Lerp(CurrentPoint, NextPoint, CurrentEdgeProgress / Distance);
 
             if(CurrentEdgeProgress > Distance){
                 CurrentEdgeProgress = 0;
@@ -149,9 +240,15 @@ public class MouseController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!canMove)
+            return;
+
         Vector2 CurrentPosition = AdvancePosition();
-        transform.position = new Vector3(CurrentPosition.x, 0, CurrentPosition.y);
-        if(Input.GetMouseButtonDown(0)){
+        Vector3 NextPosition = new Vector3(CurrentPosition.x, initialY, CurrentPosition.y);
+        Vector3 dir = NextPosition - transform.position;
+        transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
+        transform.position = NextPosition;
+        if(Input.GetMouseButtonDown(0) && !IsCutting && gameManager.state == GameManager.GameState.Playing){
             Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit);
 
             Vector2 ClickedPoint = new Vector2(hit.point.x, hit.point.z);

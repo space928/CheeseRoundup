@@ -42,7 +42,7 @@ public class SettingsController : MonoBehaviour
             time += Time.deltaTime;
             float rot = Mathf.SmoothStep(0, 1, time * 2);
             settingsButton.rectTransform.localRotation = Quaternion.AngleAxis(rot * 360, Vector3.forward);
-            settingsShadow.effectDistance = new Vector2(Mathf.Sin(rot*2*Mathf.PI) * dist, Mathf.Cos(rot * 2 * Mathf.PI) * dist);
+            settingsShadow.effectDistance = new Vector2(-Mathf.Sin(rot*2*Mathf.PI) * dist, -Mathf.Cos(rot * 2 * Mathf.PI) * dist);
 
             yield return new WaitForEndOfFrame();
         }
@@ -66,6 +66,7 @@ public class SettingsController : MonoBehaviour
         settingsVisible = !settingsVisible;
         if (settingsVisible)
         {
+            //Time.timeScale = 0;
             settingsPanel.enabled = true;
             StartCoroutine(TweenSettingsCog());
             settingsPanel.CrossFadeAlpha(0.5f, 0.5f, false);
@@ -76,6 +77,7 @@ public class SettingsController : MonoBehaviour
             }
         } else
         {
+            //Time.timeScale = 1;
             settingsPanel.enabled = false;
             StartCoroutine(TweenSettingsCog());
             settingsPanel.CrossFadeAlpha(0, 0.3f, false);
