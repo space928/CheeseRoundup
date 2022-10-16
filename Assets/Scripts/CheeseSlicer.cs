@@ -1,0 +1,53 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CheeseSlicer : MonoBehaviour
+{
+    [SerializeField] private ParticleSystem particles;
+    [SerializeField] private Vector2 from;
+    [SerializeField] private Vector2 to;
+
+    private Transform[] parts;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        parts = new Transform[transform.childCount];
+        for (int i = 0; i < parts.Length; i++)
+            parts[i] = transform.GetChild(i);
+    }
+
+    void Update()
+    {
+        if(Input.GetMouseButtonDown(0))
+        {
+            Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit rhit);
+            if (from != Vector2.zero)
+            {
+                to = new Vector2(rhit.point.x, rhit.point.z);
+                SliceCheese(from, to, false);
+                from = Vector2.zero;
+                to = Vector2.zero;
+            } else
+                from = new Vector2(rhit.point.x, rhit.point.z);
+        }
+    }
+
+    void SliceCheese(Vector2 from, Vector2 to, bool half)
+    {
+        Vector2 dir = (to - from);
+
+        particles.transform.position = new Vector3(from.x, 0, from.y);
+        particles.transform.rotation = Quaternion.LookRotation(new Vector3(dir.y, 0, dir.x), Vector3.up);
+        particles.Play();
+
+        foreach (Transform part in parts)
+        {
+            var p = new Vector2(part.position.x, part.position.z);
+            var dir2 = p - from;
+            if (Vector2.SignedAngle(dir, dir2) > 0 ^ half)
+                part.gameObject.SetActive(false);
+        }
+    }
+}

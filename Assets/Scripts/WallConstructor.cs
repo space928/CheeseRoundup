@@ -22,17 +22,17 @@ public class WallConstructor : MonoBehaviour
     {
         meshRenderer = GetComponent<MeshRenderer>();
         meshFilter = GetComponent<MeshFilter>();
-        //mesh = new Mesh();
-        //meshFilter.mesh = mesh;
+        mesh = new Mesh();
+        meshFilter.mesh = mesh;
 
-        /*Triangulate(new Vector3[] { 
-            new Vector3(0,0,0), 
+        /* Triangulate(new Vector3[] { 
             new Vector3(0,0,1), 
             new Vector3(1,0,0), 
-            new Vector3(1,0,1), 
-            new Vector3(2,0,0), 
             new Vector3(2,0,1), 
-        });*/
+            new Vector3(3,0,0), 
+            new Vector3(3,0,3), 
+            new Vector3(0,0,3), 
+        }); */
     }
 
     // Update is called once per frame
@@ -41,9 +41,12 @@ public class WallConstructor : MonoBehaviour
 
     }
 
+
     //TODO: Make this a coroutine
     public void ConstructWall(List<Vector3> points, MouseWall startWall, MouseWall endWall)
     {
+
+        //return; //###################################################################################
         if (points.Count < 2 || !startWall || !endWall)
             return;
 
@@ -56,7 +59,6 @@ public class WallConstructor : MonoBehaviour
         pointsArr[points.Count + 1] = lastPoint;
         Array.Copy(points.ToArray(), 0, pointsArr, 1, points.Count);
 
-/*
         // Generate mesh
         // Merge with old mesh
         var oldVerts = mesh.vertices;
@@ -75,9 +77,9 @@ public class WallConstructor : MonoBehaviour
 
         // Extrusion
         var extrusion = TriangulateExtrusion(pointsArr.Length, oldVerts.Length);
-        Array.Copy(pointsArr, 0, verts, oldVerts.Length + pointsArr.Length, pointsArr.Length);
-        Array.Copy(OffsetVerts(pointsArr, new Vector3(0, -1, 0)), 0, verts, oldVerts.Length + pointsArr.Length * 2, pointsArr.Length);
-        Array.Copy(extrusion, 0, tris, oldTris.Length + triangulation.Length, extrusion.Length);
+        //Array.Copy(pointsArr, 0, verts, oldVerts.Length + pointsArr.Length, pointsArr.Length);
+        //Array.Copy(OffsetVerts(pointsArr, new Vector3(0, -1, 0)), 0, verts, oldVerts.Length + pointsArr.Length, pointsArr.Length);
+        //Array.Copy(extrusion, 0, tris, oldTris.Length + triangulation.Length, extrusion.Length);
 
         // Update mesh
         mesh.SetVertices(verts);
@@ -85,9 +87,9 @@ public class WallConstructor : MonoBehaviour
 
         mesh.RecalculateNormals();
         mesh.UploadMeshData(false);
-*/
+        /*
         // Create colliders
-        for(int i = 1; i < points.Count-1; i++)
+        /*for(int i = 1; i < points.Count-1; i++)
         {
             // Find centre
             Vector3 pos = (points[i] + points[i + 1]) / 2;
@@ -100,7 +102,7 @@ public class WallConstructor : MonoBehaviour
             var obj = Instantiate(wallPrefab, pos, rot);
             obj.transform.localScale = new Vector3(width, 1, 1);
             walls.Add(obj);
-        }
+        }*/
     }
 
     /// <summary>
@@ -130,14 +132,15 @@ public class WallConstructor : MonoBehaviour
     {
         var tris = new int[nPoints*6];
 
-        for(int i = indexOffset ; i < nPoints + indexOffset; i++)
+        for(int i = 0 ; i < nPoints; i++)
         {
-            tris[i*6]   = i;
-            tris[i*6+1]   = (i+1) % nPoints;
-            tris[i*6+2]   = i+nPoints;
-            tris[i * 6 + 3] = i + nPoints;
-            tris[i*6+3] = i + (i + 1) % nPoints;
-            tris[i*6+3] = i + i + ((nPoints + 1) % nPoints);
+            int ii = i + indexOffset;
+            tris[i*6]   = ii;
+            tris[i*6+1]   = (ii+1) % nPoints;
+            tris[i*6+2]   = ii+nPoints;
+            tris[i * 6 + 3] = ii + nPoints;
+            tris[i*6+3] = ii + (ii + 1) % nPoints;
+            tris[i*6+3] = ii + ii + ((nPoints + 1) % nPoints);
         }
 
         return tris;
@@ -158,8 +161,13 @@ public class WallConstructor : MonoBehaviour
         var indices = new int[(points.Count - 2)*3];
         var node = points.First;
         int index = 0;
+        int Iterations = 0;
         while (points.Count > 2)
         {
+            if(Iterations++ > 1000){ //############################################################
+                Debug.LogWarning("Infinite loop prevented");
+                break; //###############################
+            }
             var prev = node.Previous == null ? points.Last.Value : node.Previous.Value;
             var curr = node.Value;
             var next = node.Next == null ? points.First.Value : node.Next.Value;
@@ -175,6 +183,10 @@ public class WallConstructor : MonoBehaviour
                 testNode = testNode.Next == null ? points.First : testNode.Next;
                 while (testNode != (node.Previous==null?points.Last:node.Previous) && isEar)
                 {
+                    if(Iterations++ > 1000){ //############################################################
+                        Debug.LogWarning("Infinite loop prevented");
+                        break; //###############################
+                    }
                     isEar = !InsideTriangle(prevVal, currVal, nextVal, pointsArr[testNode.Value]);
                     testNode = testNode.Next == null ? points.First : testNode.Next;
                 }
