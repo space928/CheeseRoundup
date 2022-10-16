@@ -55,6 +55,18 @@ public class MouseController : MonoBehaviour
         EdgePointsCount = 4;
     }
 
+    float CalculateCurrentArea(){
+        float Area = 0.0f;
+
+        for(int i = 0; i < EdgePointsCount; ++i){
+            Vector2 a = EdgePoints[i];
+            Vector2 b = EdgePoints[(i + 1) % EdgePointsCount];
+            Area += a.x * b.y - a.y * b.x;
+        }
+
+        return Area;
+    }
+
     void CutAwayEdges(){
         IsCutting = false;
 
@@ -81,20 +93,58 @@ public class MouseController : MonoBehaviour
         Debug.Log(CatSide);
 
         Vector2[] NewEdgePoints = new Vector2[32];
-        NewEdgePoints[0] = CuttingFrom;
-        NewEdgePoints[1] = CuttingTowards;
-        Debug.Log("hi");
-        onSlicedWall.Invoke(CuttingFrom, CuttingTowards, true);
-        
         int i = 0;
-        for(; i < (CurrentEdge - CuttingTowardsNextEdge + EdgePointsCount + 1) % EdgePointsCount; ++i){
-            NewEdgePoints[i + 2] = EdgePoints[(CuttingTowardsNextEdge + i) % EdgePointsCount];
+        if(true){
+            NewEdgePoints[0] = CuttingFrom;
+            NewEdgePoints[1] = CuttingTowards;
+            Debug.Log("hi");
+            onSlicedWall.Invoke(CuttingFrom, CuttingTowards, true);
+            
+            
+            for(; i < (CurrentEdge - CuttingTowardsNextEdge + EdgePointsCount + 1) % EdgePointsCount; ++i){
+                NewEdgePoints[i + 2] = EdgePoints[(CuttingTowardsNextEdge + i) % EdgePointsCount];
+            }
+            CurrentEdge = 1;
+        } else{
+            NewEdgePoints[0] = CuttingFrom;
+            NewEdgePoints[1] = CuttingTowards;
+            Debug.Log("hi");
+            onSlicedWall.Invoke(CuttingTowards, CuttingFrom, true);
+            
+            Debug.Log(CuttingTowardsNextEdge + ", " + CurrentEdge);
+            
+            /*for(int j = (CuttingTowardsNextEdge - CurrentEdge + EdgePointsCount - 1); j >= 0; --j, ++i){
+                NewEdgePoints[i + 2] = EdgePoints[(CuttingTowardsNextEdge - j + EdgePointsCount) % EdgePointsCount];
+            }*/
+            //NewEdgePoints[2] = EdgePoints[(CuttingTowardsNextEdge - 1) % EdgePointsCount];
+
+            //EdgePointsCount = 3;//i + 2;
+
+            Debug.Log("From: " + CuttingFrom  + " To: " + CuttingTowards + " ctne: " + CuttingTowardsNextEdge + " ce: " + CurrentEdge);           
+            Debug.Log("Current points: " + EdgePointsCount);
+            for(int k = 0; k < EdgePointsCount; k++)
+                Debug.Log("   Current p: " + EdgePoints[k]); 
+
+            int j = (CuttingTowardsNextEdge-1) % EdgePointsCount;
+            while(j != CurrentEdge % EdgePointsCount)
+            {
+                //Debug.Log(i + ", " + j + ", " + EdgePointsCount);
+                Debug.Log(EdgePoints[j] + ", " + CuttingFrom);
+                NewEdgePoints[i++ + 2] = EdgePoints[j];
+                j = (j-1+EdgePointsCount) % EdgePointsCount;
+            }
+
+            for(int k = 0; k < EdgePointsCount; k++)
+                Debug.Log("   New p: " + NewEdgePoints[k]);
+
+            CurrentEdge = 1;
         }
+
 
         EdgePoints = NewEdgePoints;
         EdgePointsCount = i + 2;
 
-        CurrentEdge = 1;
+        
 
         CuttingTowardsNextEdge = -1;
     }
@@ -105,8 +155,10 @@ public class MouseController : MonoBehaviour
         if(!IsCutting){
             Vector2 CurrentPoint = EdgePoints[CurrentEdge % EdgePointsCount];
             Vector2 NextPoint = EdgePoints[(CurrentEdge + 1) % EdgePointsCount];
+            //Vector2 NextPoint = EdgePoints[(CurrentEdge - 1 + EdgePointsCount-1) % EdgePointsCount];
             float Distance = Vector2.Distance(NextPoint, CurrentPoint);
             Vector3 Position = Vector3.Lerp(CurrentPoint, NextPoint, CurrentEdgeProgress / Distance);
+            //Vector3 Position = Vector3.Lerp(CurrentPoint, NextPoint, CurrentEdgeProgress / Distance);
 
             if(CurrentEdgeProgress > Distance){
                 CurrentEdgeProgress = 0;
@@ -179,7 +231,7 @@ public class MouseController : MonoBehaviour
     {
         Vector2 CurrentPosition = AdvancePosition();
         transform.position = new Vector3(CurrentPosition.x, 0, CurrentPosition.y);
-        if(Input.GetMouseButtonDown(0)){
+        if(Input.GetMouseButtonDown(0) && !IsCutting && gameManager.state == GameManager.GameState.Playing){
             Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit);
 
             Vector2 ClickedPoint = new Vector2(hit.point.x, hit.point.z);

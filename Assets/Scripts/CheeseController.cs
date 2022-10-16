@@ -39,7 +39,7 @@ public class CheeseController : MonoBehaviour
         //This should trigger on hitting mouse and trail, might fix itself idk
         if(collision.gameObject.CompareTag("Mouse"))
         {
-            manager.EndGame();
+            manager.GameOverLose();
         }
     }
 
