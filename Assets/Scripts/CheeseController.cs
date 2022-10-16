@@ -6,6 +6,8 @@ public class CheeseController : MonoBehaviour
 {
     public float baseMoveSpeed = 0.01f;
     public float moveSpeed;
+    public Animator animator;
+
     private float initialY;
     private float randAngle1;
     private float randAngle2;
@@ -21,7 +23,8 @@ public class CheeseController : MonoBehaviour
         forward = new Vector3(Mathf.Cos(randAngle1), 0, Mathf.Sin(randAngle2));
         manager = GameManager.instance;
         moveSpeed = baseMoveSpeed * (1 + ( manager.level % 5 ) * 0.3f);
-        
+
+        animator.CrossFade("walk", 0.5f);
     }
 
     // Update is called once per frame

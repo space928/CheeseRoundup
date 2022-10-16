@@ -66,7 +66,7 @@ public class SettingsController : MonoBehaviour
         settingsVisible = !settingsVisible;
         if (settingsVisible)
         {
-            Time.timeScale = 0;
+            //Time.timeScale = 0;
             settingsPanel.enabled = true;
             StartCoroutine(TweenSettingsCog());
             settingsPanel.CrossFadeAlpha(0.5f, 0.5f, false);
@@ -77,7 +77,7 @@ public class SettingsController : MonoBehaviour
             }
         } else
         {
-            Time.timeScale = 1;
+            //Time.timeScale = 1;
             settingsPanel.enabled = false;
             StartCoroutine(TweenSettingsCog());
             settingsPanel.CrossFadeAlpha(0, 0.3f, false);
