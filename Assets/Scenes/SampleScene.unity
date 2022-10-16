@@ -2448,7 +2448,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 519420031}
   wallConstructor: {fileID: 828183148}
-  moveSpeed: 1
+  moveSpeed: 0.7
   constrainY: 1
   angleSnaps: 8
   turnTime: 0.3
