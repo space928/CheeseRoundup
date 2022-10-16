@@ -5,15 +5,13 @@ using UnityEngine;
 public class CheeseController : MonoBehaviour
 {
     public float moveSpeed;
-    public bool constrainY = true;
-    public float angleSnaps = 8;
-
     private bool  waitCheck = false;
     private float initialY;
     private float randAngle1;
     private float randAngle2;
     private GameManager manager;
-    private float baseMoveSpeed = 0.01f;
+    public float baseMoveSpeed = 0.4f;
+    public Animator animator;
     Vector3 forward;
 
     // Start is called before the first frame update
@@ -28,7 +26,7 @@ public class CheeseController : MonoBehaviour
         manager = GameManager.instance;
         moveSpeed = baseMoveSpeed * (1 + ( manager.level % 5 ) * 0.3f);
 
-        animator.CrossFade("walk", 0.5f);
+        animator.CrossFade("idle", 0.5f);
 
         //Literally Just Waits The Cat Movement
         StartCoroutine(CatDoesntInstaKill());
@@ -46,7 +44,7 @@ public class CheeseController : MonoBehaviour
         }
         if(collision.gameObject.CompareTag("Mouse"))
         {
-            
+            manager.GameOverLose();
         }
     }
 
@@ -54,6 +52,7 @@ public class CheeseController : MonoBehaviour
     {
         yield return new WaitForSeconds(1);
         waitCheck = true;
+        animator.CrossFade("walk", 0.5f);
         
     }
 
@@ -63,7 +62,6 @@ public class CheeseController : MonoBehaviour
         {
             return;
         }
-        //Debug.Log(moveSpeed);
         transform.position += moveSpeed * Time.deltaTime * forward;
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }

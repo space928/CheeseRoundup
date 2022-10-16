@@ -92,6 +92,7 @@ public class GameManager : MonoBehaviour
         state = GameState.Playing;
         onGameStart.Invoke();
         mouseController.CanMove = true;
+        cheeseIndicatorMaterial.SetFloat("_WipeAmount", 0 );
     }
     public void LevelWin()
     {

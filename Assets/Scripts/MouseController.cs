@@ -248,7 +248,7 @@ public class MouseController : MonoBehaviour
         Vector3 dir = NextPosition - transform.position;
         transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
         transform.position = NextPosition;
-        if(Input.GetMouseButtonDown(0) && !IsCutting && gameManager.state == GameManager.GameState.Playing){
+        if((Input.GetButtonDown("Fire1"))&& !IsCutting && gameManager.state == GameManager.GameState.Playing){
             Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit);
 
             Vector2 ClickedPoint = new Vector2(hit.point.x, hit.point.z);

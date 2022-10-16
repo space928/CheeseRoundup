@@ -8,7 +8,7 @@ public class CheeseSlicer : MonoBehaviour
     [SerializeField] private ParticleSystem particles;
     [SerializeField] private Vector2 from;
     [SerializeField] private Vector2 to;
-
+    private int yieldControl;
     private Transform[] parts;
 
     // Start is called before the first frame update
@@ -47,7 +47,11 @@ public class CheeseSlicer : MonoBehaviour
         foreach (Transform part in parts)
         {
             part.gameObject.SetActive(true);
-            yield return new WaitForEndOfFrame();
+            yieldControl++;
+            if(yieldControl%2==0)
+                {
+                yield return new WaitForEndOfFrame();
+                }
         }
     }
 
