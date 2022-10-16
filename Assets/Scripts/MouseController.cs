@@ -15,7 +15,7 @@ public class MouseController : MonoBehaviour
     [SerializeField] private float turnTime = 0.3f;
     [SerializeField] private UnityEvent<float, float> onTurn;
     [SerializeField] private UnityEvent onHitWall;
-    [SerializeField] private UnityEvent<float, float> onSlicedWallArea;
+    [SerializeField] private UnityEvent<float, float, bool> onSlicedWallArea;
     [SerializeField] private UnityEvent<Vector2, Vector2, bool> onSlicedWall;
 
 
@@ -96,10 +96,9 @@ public class MouseController : MonoBehaviour
 
         if(CatSides[0] > 0 && CatSides[1] > 0){
             Debug.Log("Lose");
+            onSlicedWallArea.Invoke(0, 0, true);
             return;
         }
-        if(CatSides[1] > 0) CatSide = 1;
-        Debug.Log(CatSide);
 
         Vector2[] NewEdgePoints = new Vector2[32];
         int i = 0;
@@ -114,46 +113,13 @@ public class MouseController : MonoBehaviour
                 NewEdgePoints[i + 2] = EdgePoints[(CuttingTowardsNextEdge + i) % EdgePointsCount];
             }
             CurrentEdge = 1;
-        } else{
-            NewEdgePoints[0] = CuttingFrom;
-            NewEdgePoints[1] = CuttingTowards;
-            Debug.Log("hi");
-            onSlicedWall.Invoke(CuttingTowards, CuttingFrom, true);
-            
-            Debug.Log(CuttingTowardsNextEdge + ", " + CurrentEdge);
-            
-            /*for(int j = (CuttingTowardsNextEdge - CurrentEdge + EdgePointsCount - 1); j >= 0; --j, ++i){
-                NewEdgePoints[i + 2] = EdgePoints[(CuttingTowardsNextEdge - j + EdgePointsCount) % EdgePointsCount];
-            }*/
-            //NewEdgePoints[2] = EdgePoints[(CuttingTowardsNextEdge - 1) % EdgePointsCount];
-
-            //EdgePointsCount = 3;//i + 2;
-
-            Debug.Log("From: " + CuttingFrom  + " To: " + CuttingTowards + " ctne: " + CuttingTowardsNextEdge + " ce: " + CurrentEdge);           
-            Debug.Log("Current points: " + EdgePointsCount);
-            for(int k = 0; k < EdgePointsCount; k++)
-                Debug.Log("   Current p: " + EdgePoints[k]); 
-
-            int j = (CuttingTowardsNextEdge-1) % EdgePointsCount;
-            while(j != CurrentEdge % EdgePointsCount)
-            {
-                //Debug.Log(i + ", " + j + ", " + EdgePointsCount);
-                Debug.Log(EdgePoints[j] + ", " + CuttingFrom);
-                NewEdgePoints[i++ + 2] = EdgePoints[j];
-                j = (j-1+EdgePointsCount) % EdgePointsCount;
-            }
-
-            for(int k = 0; k < EdgePointsCount; k++)
-                Debug.Log("   New p: " + NewEdgePoints[k]);
-
-            CurrentEdge = 1;
         }
 
 
         EdgePoints = NewEdgePoints;
         EdgePointsCount = i + 2;
 
-        onSlicedWallArea.Invoke(CalculateCurrentArea(), maxArea);
+        onSlicedWallArea.Invoke(CalculateCurrentArea(), maxArea, CatSides[1] > 0);
 
 
         CuttingTowardsNextEdge = -1;
@@ -201,8 +167,8 @@ public class MouseController : MonoBehaviour
         float Gamma = ((p.y - q.y) * (s.x - p.x) + (q.x - p.x) * (s.y - p.y)) / Determinant;
         return 0 < Lambda && Lambda < 1 && 0 < Gamma && Gamma < 1;
     }*/
-
-    private static bool Intersects(Vector2 x, Vector2 y, Vector2 z, Vector2 w){
+    //life's too short
+    public static bool Intersects(Vector2 x, Vector2 y, Vector2 z, Vector2 w){
         float a = x.x;
         float b = x.y;
         float c = y.x;
@@ -219,7 +185,7 @@ public class MouseController : MonoBehaviour
 
     }
 
-    private static Vector2 IntersectionPoint(Vector2 _1, Vector2 _2, Vector2 _3, Vector2 _4){
+    public static Vector2 IntersectionPoint(Vector2 _1, Vector2 _2, Vector2 _3, Vector2 _4){
         float x1 = _1.x;
         float x2 = _2.x;
         float x3 = _3.x;

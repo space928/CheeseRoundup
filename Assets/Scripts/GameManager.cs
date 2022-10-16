@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float cheeseRatioToWin = 0.9f; //1 cat every 5 levels
     [SerializeField] private UnityEvent onGameStart;
     [SerializeField] private UnityEvent onGameOver;
-    [SerializeField] private MouseController mouseController;
+    [SerializeField] public MouseController mouseController;
     [SerializeField] private Material cheeseIndicatorMaterial;
     [SerializeField] private Material floorMaterial;
     [SerializeField] private GameObject gameOverLoseScreen;
@@ -46,8 +46,9 @@ public class GameManager : MonoBehaviour
         ReadyToPlay, Playing, LevelWin, GameoverLose 
     }
 
-    public void OnCheeseAreaChanged(float cheeseArea, float maxArea)
+    public void OnCheeseAreaChanged(float cheeseArea, float maxArea, bool Lost)
     {
+        if (Lost) GameOverLose();
         if(cheeseArea/maxArea < 1- cheeseRatioToWin)
         {
             LevelWin();
