@@ -219,7 +219,7 @@ public class MouseController : MonoBehaviour
     {
         Vector2 CurrentPosition = AdvancePosition();
         transform.position = new Vector3(CurrentPosition.x, 0, CurrentPosition.y);
-        if(Input.GetMouseButtonDown(0) && !IsCutting){
+        if(Input.GetMouseButtonDown(0) && !IsCutting && gameManager.state == GameManager.GameState.Playing){
             Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit);
 
             Vector2 ClickedPoint = new Vector2(hit.point.x, hit.point.z);

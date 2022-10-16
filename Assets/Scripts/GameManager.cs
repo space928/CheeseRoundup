@@ -68,12 +68,14 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         SpawnCheese();
+        state = GameState.Playing;
         onGameStart.Invoke();
     }
     
     public void EndGame()
     {
         RemoveCheese();
+        state = GameState.Gameover;
         onGameOver.Invoke();
 
         //Spawn some red box with flavour text idk 
